@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --afdb-green: #009A44;
+  --afdb-green-dark: #007A35;
+  --afdb-gold: #F5A623;
+  --afdb-navy: #002B5C;
+  --afdb-navy-light: #003D82;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}
+
+/* AfDB branded scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: var(--afdb-green); border-radius: 3px; }
+
+/* Ant Design overrides */
+.ant-btn-primary { background-color: var(--afdb-green) !important; }
+.ant-btn-primary:hover { background-color: var(--afdb-green-dark) !important; }
+.ant-input:focus, .ant-input-focused { border-color: var(--afdb-green) !important; box-shadow: 0 0 0 2px rgba(0, 154, 68, 0.2) !important; }
