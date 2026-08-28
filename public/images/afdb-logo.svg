@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" fill="none">
+  <!-- Green circle emblem -->
+  <circle cx="60" cy="60" r="50" fill="#009A44"/>
+  <!-- Africa continent silhouette in gold -->
+  <path d="M60 18 C52 18, 42 24, 38 34 C34 44, 32 50, 34 60 C36 70, 40 78, 44 84 C48 90, 52 94, 56 96 C58 97, 60 97, 62 96 C66 94, 70 90, 74 84 C78 78, 82 70, 84 60 C86 50, 84 44, 80 34 C76 24, 66 18, 60 18Z" fill="#F5A623" opacity="0.9"/>
+  <!-- Inner continent detail -->
+  <path d="M56 30 C53 33, 50 40, 51 50 C52 60, 55 68, 57 74 C59 80, 60 82, 60 84 C60 82, 61 80, 63 74 C65 68, 68 60, 69 50 C70 40, 67 33, 64 30 C61 27, 59 27, 56 30Z" fill="#009A44" opacity="0.5"/>
+  <!-- Bank text -->
+  <text x="125" y="48" fill="#002B5C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="0.5">African Development</text>
+  <text x="125" y="78" fill="#002B5C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="0.5">Bank</text>
+  <!-- Group text -->
+  <text x="125" y="100" fill="#F5A623" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" letter-spacing="1">GROUP</text>
+</svg>

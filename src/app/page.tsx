@@ -13,8 +13,8 @@ export default function Home() {
     }
   }, [router]);
   return (
-    <div className="min-h-screen flex items-center justify-center bg-afdb-gray">
-      <div className="animate-pulse text-afdb-green font-semibold">Loading AfDB Dashboard...</div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="animate-pulse text-primary font-semibold" style={{ fontFamily: 'Afacad, sans-serif' }}>Loading AfDB Dashboard...</div>
     </div>
   );
 }

@@ -4,6 +4,9 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  mfaEnabled?: boolean;
+  remainingBackupCodes?: number;
+  ssoProvider?: string;
 }
 
 export interface AuthTokens {
@@ -20,7 +23,18 @@ export interface LoginResponse {
     mfaRequired?: boolean;
     userId?: string;
     user?: User;
+    remainingAttempts?: number;
+    remainingBackupCodes?: number;
+    locked?: boolean;
+    lockUntil?: string;
   };
+}
+
+export interface SsoProvider {
+  id: string;
+  name: string;
+  icon: string;
+  authorizationUrl: string;
 }
 
 export interface ApiResponse<T = unknown> {
