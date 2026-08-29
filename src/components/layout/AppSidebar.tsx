@@ -61,8 +61,8 @@ export default function AppSidebar() {
     <aside
       className={cn(
         'hidden md:flex flex-col h-screen sticky top-0 border-r transition-all duration-300 ease-in-out',
-        'bg-[rgb(249_250_253)] dark:bg-[rgb(12_12_13)]',
-        'border-[rgb(233,238,246)] dark:border-[rgb(27,30,35)]',
+        'bg-[rgb(249_250_253)] dark:bg-black',
+        'border-[rgb(233,238,246)] dark:border-[rgb(30,30,30)]',
         collapsed ? 'w-[5rem]' : 'w-64'
       )}
     >
@@ -70,11 +70,13 @@ export default function AppSidebar() {
       <div className="flex items-center h-16 px-4 border-b border-inherit">
         {!collapsed ? (
           <Link href="/dashboard" className="flex items-center">
-            <AfDBLogo size={40} />
+            <AfDBLogo size={40} width={80} className="dark:hidden" />
+            <AfDBLogo size={40} width={80} className="hidden dark:block" light />
           </Link>
         ) : (
           <Link href="/dashboard" className="mx-auto">
-            <AfDBLogo size={28} />
+            <AfDBLogo size={28} className="dark:hidden" />
+            <AfDBLogo size={28} className="hidden dark:block" light />
           </Link>
         )}
       </div>
@@ -103,7 +105,14 @@ export default function AppSidebar() {
                 )}
                 title={collapsed ? item.title : undefined}
               >
-                <Icon className={cn('h-5 w-5 flex-shrink-0', isActive && 'text-primary')} />
+                <div className={cn(
+                  'w-9 h-9 rounded-lg flex items-center justify-center border transition-colors',
+                  isActive
+                    ? 'bg-primary/10 border-primary/20 dark:border-primary/30'
+                    : 'bg-gray-50 dark:bg-[rgb(20,20,20)] border-gray-200 dark:border-[rgb(35,35,35)]'
+                )}>
+                  <Icon className={cn('h-5 w-5', isActive ? 'text-primary' : 'text-gray-500 dark:text-gray-400')} />
+                </div>
                 {!collapsed && <span className="truncate">{item.title}</span>}
               </Link>
             );
@@ -129,7 +138,9 @@ export default function AppSidebar() {
                 )}
                 title={collapsed ? item.title : undefined}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+                  <Icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                </div>
                 {!collapsed && <span className="truncate">{item.title}</span>}
               </Link>
             );
@@ -149,11 +160,17 @@ export default function AppSidebar() {
           title={collapsed ? `Theme: ${theme}` : undefined}
         >
           {mounted && theme === 'dark' ? (
-            <Moon className="h-5 w-5 flex-shrink-0" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+              <Moon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            </div>
           ) : mounted && theme === 'system' ? (
-            <Monitor className="h-5 w-5 flex-shrink-0" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+              <Monitor className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            </div>
           ) : (
-            <Sun className="h-5 w-5 flex-shrink-0" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+              <Sun className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            </div>
           )}
           {!collapsed && (
             <span>{mounted ? (theme === 'dark' ? 'Dark Mode' : theme === 'system' ? 'Auto Mode' : 'Light Mode') : 'Theme'}</span>
@@ -167,10 +184,14 @@ export default function AppSidebar() {
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
-            <ChevronRight className="h-5 w-5 flex-shrink-0" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+              <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            </div>
           ) : (
             <>
-              <ChevronLeft className="h-5 w-5 flex-shrink-0" />
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-[rgb(20,20,20)] border border-gray-200 dark:border-[rgb(35,35,35)]">
+                <ChevronLeft className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </div>
               <span>Collapse</span>
             </>
           )}

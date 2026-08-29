@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import AfDBLogo from './AfDBLogo';
 
 export default function LeftBranding() {
@@ -19,7 +20,9 @@ export default function LeftBranding() {
 
       {/* Logo */}
       <div className="flex items-center gap-4 relative z-10">
-        <AfDBLogo size={80} light />
+        <Link href="/login" className="cursor-pointer hover:opacity-90 transition-opacity">
+          <AfDBLogo size={100} width={200} light />
+        </Link>
       </div>
 
       {/* Hero Text */}
@@ -28,8 +31,8 @@ export default function LeftBranding() {
           className="font-bold mb-4 leading-tight"
           style={{ fontFamily: 'Afacad, sans-serif' }}
         >
-          <span className="text-6xl lg:text-7xl block">Secure</span>
-          <span className="text-4xl lg:text-5xl block mt-1" style={{ color: 'rgb(245, 166, 35)' }}>
+          <span className="text-7xl lg:text-8xl block">Secure</span>
+          <span className="text-5xl lg:text-6xl block mt-1" style={{ color: 'rgb(245, 166, 35)' }}>
             Access Portal
           </span>
         </h2>

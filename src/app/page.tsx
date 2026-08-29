@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authUtils } from '@/lib/auth';
+import PageLoader from '@/components/ui/PageLoader';
 
 export default function Home() {
   const router = useRouter();
@@ -12,9 +13,5 @@ export default function Home() {
       router.push('/login');
     }
   }, [router]);
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="animate-pulse text-primary font-semibold" style={{ fontFamily: 'Afacad, sans-serif' }}>Loading AfDB Dashboard...</div>
-    </div>
-  );
+  return <PageLoader />;
 }
