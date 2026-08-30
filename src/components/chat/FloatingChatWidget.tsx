@@ -259,7 +259,9 @@ export default function FloatingChatWidget() {
   // Load user on mount
   useEffect(() => {
     if (authUtils.isAuthenticated()) {
-      setUser(authUtils.getUser());
+      const u = authUtils.getUser();
+      console.log('[ChatWidget] Loaded user from auth:', u);
+      setUser(u);
     }
   }, []);
 
@@ -505,7 +507,7 @@ export default function FloatingChatWidget() {
       });
   }, [usersState, searchQuery]);
 
-  if (!user?.id) return null;
+  if (!user) return null;
 
   const getInitial = (name: string) => name.charAt(0).toUpperCase();
 
