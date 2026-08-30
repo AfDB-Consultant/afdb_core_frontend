@@ -7,6 +7,7 @@ import { User } from '@/types';
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout';
 import { useWeather } from '@/hooks/useWeather';
 import PageLoader from '@/components/ui/PageLoader';
+import coreApi from '@/lib/coreApi';
 import {
   FolderKanban,
   DollarSign,
@@ -126,6 +127,8 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [hiddenAreaSeries, setHiddenAreaSeries] = useState<Set<string>>(new Set());
   const [hiddenBarSeries, setHiddenBarSeries] = useState<Set<string>>(new Set());
+  const [dashStats, setDashStats] = useState<{ activeProjects: number; totalProjects: number; totalBudget: number; countriesCount: number; recentActivity: { action: string; timestamp: string; user: string; entityType: string }[] } | null>(null);
+  const [teamTotal, setTeamTotal] = useState(0);
   const { data: weatherData, isLoading: weatherLoading, isError: weatherError } = useWeather();
 
   // Toggle series visibility for Area Chart
@@ -156,6 +159,13 @@ export default function DashboardPage() {
       return;
     }
     setUser(authUtils.getUser());
+    // Fetch real dashboard stats from core API
+    coreApi.get('/dashboard/stats').then(res => {
+      if (res.data.success) setDashStats(res.data.data);
+    }).catch(() => {});
+    coreApi.get('/team', { params: { limit: 1 } }).then(res => {
+      if (res.data.success) setTeamTotal(res.data.pagination.total);
+    }).catch(() => {});
   }, [router]);
 
   useEffect(() => {
@@ -199,11 +209,17 @@ export default function DashboardPage() {
     year: 'numeric',
   });
 
+  const formatBudget = (val: number) => {
+    if (val >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
+    if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(0)}M`;
+    return `$${val}`;
+  };
+
   const stats = [
-    { title: 'Active Projects', value: '24', subtitle: 'Across 18 countries', icon: FolderKanban, color: 'green' },
-    { title: 'Total Budget', value: '$1.2B', subtitle: '+12% from last quarter', icon: DollarSign, color: 'blue' },
-    { title: 'Team Members', value: '156', subtitle: '8 new this month', icon: Users, color: 'purple' },
-    { title: 'Countries', value: '42', subtitle: '3 new regions', icon: Globe2, color: 'amber' },
+    { title: 'Active Projects', value: dashStats ? String(dashStats.activeProjects) : '—', subtitle: dashStats ? `Across ${dashStats.countriesCount} countries` : 'Loading...', icon: FolderKanban, color: 'green' },
+    { title: 'Total Budget', value: dashStats ? formatBudget(dashStats.totalBudget) : '—', subtitle: `${dashStats?.totalProjects ?? '—'} total projects`, icon: DollarSign, color: 'blue' },
+    { title: 'Team Members', value: teamTotal ? String(teamTotal) : '—', subtitle: 'Across all departments', icon: Users, color: 'purple' },
+    { title: 'Countries', value: dashStats ? String(dashStats.countriesCount) : '—', subtitle: 'Active operations', icon: Globe2, color: 'amber' },
   ];
 
   const quickAccessModules = [
@@ -215,13 +231,20 @@ export default function DashboardPage() {
     { name: 'API Docs', icon: Shield, href: 'http://localhost:4000/api-docs', active: false, external: true },
   ];
 
-  const recentActivity = [
-    { action: 'Project proposal submitted', project: 'East Africa Transport Corridor', time: '2 hours ago', status: 'active' },
-    { action: 'Budget review completed', project: 'West Africa Power Pool', time: '5 hours ago', status: 'completed' },
-    { action: 'New team member added', project: 'Sahel Region Development', time: '1 day ago', status: 'active' },
-    { action: 'Quarterly report generated', project: 'North Africa Infrastructure', time: '2 days ago', status: 'completed' },
-    { action: 'Risk assessment updated', project: 'Central Africa Digital Initiative', time: '3 days ago', status: 'review' },
-  ];
+  const recentActivity = dashStats?.recentActivity?.length
+    ? dashStats.recentActivity.map((a) => ({
+        action: a.action || a.entityType,
+        project: a.user || 'System',
+        time: a.timestamp ? new Date(a.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
+        status: 'active' as const,
+      }))
+    : [
+        { action: 'Project proposal submitted', project: 'East Africa Transport Corridor', time: '2 hours ago', status: 'active' as const },
+        { action: 'Budget review completed', project: 'West Africa Power Pool', time: '5 hours ago', status: 'completed' as const },
+        { action: 'New team member added', project: 'Sahel Region Development', time: '1 day ago', status: 'active' as const },
+        { action: 'Quarterly report generated', project: 'North Africa Infrastructure', time: '2 days ago', status: 'completed' as const },
+        { action: 'Risk assessment updated', project: 'Central Africa Digital Initiative', time: '3 days ago', status: 'review' as const },
+      ];
 
   const systemStatus = [
     { name: 'Authentication Service', status: 'Operational', healthy: true },

@@ -50,6 +50,20 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Read tab from URL hash on mount
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && tabs.some(t => t.id === hash)) {
+      setActiveTab(hash as SettingsTab);
+    }
+  }, []);
+
+  // Update URL hash when tab changes
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    window.history.replaceState(null, '', `#${tab}`);
+  };
+
   // Profile state
   const [profile, setProfile] = useState({
     firstName: '',
@@ -307,7 +321,7 @@ export default function SettingsPage() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabChange(tab.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
                       isActive
                         ? 'bg-[#009A44]/10 text-[#009A44] dark:bg-[#009A44]/20'

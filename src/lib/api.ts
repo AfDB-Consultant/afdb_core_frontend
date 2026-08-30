@@ -15,8 +15,16 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      authUtils.clearAuth();
-      if (typeof window !== 'undefined') window.location.href = '/login';
+      const requestUrl = error.config?.url || '';
+      // Only clear auth and redirect for auth-related endpoints
+      if (requestUrl.includes('/auth/') || requestUrl.includes('/messenger/')) {
+        // Don't clear auth for messenger errors (contacts, messages) — just reject
+        if (requestUrl.includes('/messenger/')) {
+          return Promise.reject(error);
+        }
+        authUtils.clearAuth();
+        if (typeof window !== 'undefined') window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
