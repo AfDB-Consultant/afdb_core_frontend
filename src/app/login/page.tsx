@@ -7,6 +7,7 @@ import { authUtils } from '@/lib/auth';
 import api from '@/lib/api';
 import { LoginResponse, SsoProvider } from '@/types';
 import { Mail, Lock, Eye, EyeOff, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
+import OtpVerification from '@/components/auth/OtpVerification';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,15 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [ssoProviders, setSsoProviders] = useState<SsoProvider[]>([]);
+
+  // 2FA OTP state
+  const [mfaUserId, setMfaUserId] = useState<string | null>(null);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [otpNotification, setOtpNotification] = useState('');
+  const [otpTimerKey, setOtpTimerKey] = useState(0);
 
   useEffect(() => {
     api.get<SsoProvider[] | { providers: SsoProvider[] }>('/sso/providers')
@@ -37,7 +47,15 @@ export default function LoginPage() {
       const { data } = await api.post<LoginResponse>('/auth/login', { email, password });
 
       if (data.data?.mfaRequired) {
-        router.push(`/mfa?userId=${data.data.userId}`);
+        // Send login OTP via email
+        setMfaUserId(data.data.userId!);
+        try {
+          await api.post('/auth/send-login-otp', { userId: data.data.userId });
+          setOtpTimerKey((k) => k + 1);
+          setShowOtp(true);
+        } catch {
+          setError('Failed to send verification code. Please try again.');
+        }
         return;
       }
 
@@ -67,6 +85,47 @@ export default function LoginPage() {
     }
   };
 
+  const handleOtpVerify = async () => {
+    if (!mfaUserId) return;
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      const { data } = await api.post('/auth/verify-login-otp', { userId: mfaUserId, code: otp.join('') });
+      if (data.data?.accessToken && data.data?.user) {
+        authUtils.setAuthData(
+          { accessToken: data.data.accessToken, refreshToken: data.data.refreshToken! },
+          data.data.user
+        );
+        router.push('/dashboard');
+      }
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setOtpError(axiosErr.response?.data?.message || 'Invalid code. Please try again.');
+    }
+    setOtpLoading(false);
+  };
+
+  const handleOtpResend = async () => {
+    if (!mfaUserId) return;
+    try {
+      await api.post('/auth/send-login-otp', { userId: mfaUserId });
+      setOtp(['', '', '', '', '', '']);
+      setOtpError('');
+      setOtpTimerKey((k) => k + 1);
+      setOtpNotification('A new verification code has been sent to your email');
+      setTimeout(() => setOtpNotification(''), 5000);
+    } catch {
+      setOtpError('Failed to resend code');
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    setOtpError('');
+  };
+
   const handleSsoLogin = async (providerId: string) => {
     try {
       const { data } = await api.get(`/sso/initiate/${providerId}`);
@@ -77,6 +136,36 @@ export default function LoginPage() {
       setError('Failed to initiate SSO login. Please try again.');
     }
   };
+
+  // If OTP verification is showing (2FA flow)
+  if (showOtp) {
+    return (
+      <AuthLayout>
+        <div className="mb-6 sm:mb-8 text-center lg:text-left">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2" style={{ fontFamily: 'Afacad, sans-serif' }}>
+            Two-Step Verification
+          </h1>
+          <p className="text-sm sm:text-base" style={{ color: 'rgb(110, 130, 165)', fontFamily: 'Afacad, sans-serif' }}>
+            Check your email for the verification code
+          </p>
+        </div>
+        <OtpVerification
+          email={email}
+          otp={otp}
+          onOtpChange={handleOtpChange}
+          onVerify={handleOtpVerify}
+          onResend={handleOtpResend}
+          onCancel={() => { setShowOtp(false); setMfaUserId(null); }}
+          loading={otpLoading}
+          error={otpError}
+          notification={otpNotification}
+          title="Login verification code"
+          verifyLabel="Sign In"
+          timerKey={otpTimerKey}
+        />
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout>
@@ -89,19 +178,6 @@ export default function LoginPage() {
           Welcome back!<br />Please enter your details
         </p>
       </div>
-
-      {/* Error */}
-      {error && (
-        <div className={`mb-4 p-3 border rounded-xl text-sm flex items-start gap-2 ${remainingAttempts !== null && remainingAttempts <= 2 ? 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-400' : 'bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'}`}>
-          <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-          <div>
-            <p>{error}</p>
-            {remainingAttempts !== null && remainingAttempts <= 2 && (
-              <p className="text-xs mt-1 opacity-80">{remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining before lockout</p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Form Card */}
       <div className="py-4 px-5 sm:py-5 sm:px-6 rounded-[15px] sm:rounded-[20px] bg-white dark:bg-[#0a0a0a] shadow-[-5px_5px_50px_-5px_#e1e1e1] dark:shadow-none border border-gray-100 dark:border-gray-800">
@@ -120,7 +196,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@afdb.org"
+              placeholder="afdbadmin@yopmail.com"
               required
               autoFocus
               autoComplete="email"
@@ -218,6 +294,19 @@ export default function LoginPage() {
           </>
         )}
       </div>
+
+      {/* Error */}
+      {error && (
+        <div className={`mt-4 p-3 border rounded-xl text-sm flex items-start gap-2 ${remainingAttempts !== null && remainingAttempts <= 2 ? 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-400' : 'bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'}`}>
+          <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+          <div>
+            <p>{error}</p>
+            {remainingAttempts !== null && remainingAttempts <= 2 && (
+              <p className="text-xs mt-1 opacity-80">{remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining before lockout</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Sign Up Link */}
       <div className="mt-6 text-center">

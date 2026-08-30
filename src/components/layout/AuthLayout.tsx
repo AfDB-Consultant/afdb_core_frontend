@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
 import AfDBLogo from '@/components/ui/AfDBLogo';
 import LeftBranding from '@/components/ui/LeftBranding';
 
@@ -14,7 +15,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="w-full max-w-md mx-auto">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-6">
-            <AfDBLogo size={48} className="mx-auto" />
+            <Link href="/login">
+              <AfDBLogo size={60} width={120} className="mx-auto dark:hidden cursor-pointer" />
+              <AfDBLogo size={60} width={120} className="mx-auto hidden dark:block cursor-pointer" light />
+            </Link>
           </div>
 
           {children}
