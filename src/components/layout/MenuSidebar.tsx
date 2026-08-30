@@ -33,6 +33,7 @@ const MenuSidebar = () => {
     analytics: '/analytics',
     monitoring: '/monitoring',
     settings: '/settings',
+    chat: '/chat',
   };
 
   const pathPatterns: Array<{ pattern: string[]; key: string }> = [
@@ -43,6 +44,7 @@ const MenuSidebar = () => {
     { pattern: ['/analytics'], key: 'analytics' },
     { pattern: ['/monitoring'], key: 'monitoring' },
     { pattern: ['/settings'], key: 'settings' },
+    { pattern: ['/chat'], key: 'chat' },
   ];
 
   const getActiveMenuKey = (): string => {
@@ -148,6 +150,23 @@ const MenuSidebar = () => {
       'System Settings',
       'settings',
       <SettingOutlined />
+    ),
+    getItem(
+      'Messages',
+      'chat',
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+      </svg>
     ),
   ];
 
